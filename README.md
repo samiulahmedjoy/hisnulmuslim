@@ -45,4 +45,4 @@ It's pretty straight-forward, you can easily figure out it's usage.
 
 ## Installation
 
-If `$HOME/.local/bin/` is in your `$PATH` variable and `$HOME/.local/share/` exists, then just run `make install` from your terminal. It will install the program for current user only.
+If `$HOME/.local/bin/` is in your `$PATH` variable and `$HOME/.local/share/` exists, then just run `make install` from your terminal. It will install the program for current the user.
