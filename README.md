@@ -1,6 +1,6 @@
 ## Hisn al-Muslim
 
-Read the daily zikr and dua's from the Hisn al-Muslim book(Fortress of Muslim). All the contents were taken from [https://sunnah.com](sunnah.com) website.
+Read the daily zikr and dua's in the terminal from the Hisn al-Muslim book(Fortress of Muslim). All the contents were taken from [https://sunnah.com](sunnah.com) website.
 
 It contains only the transliteration(the preservation of pronunciation) and translation portion. I've omitted arabic alphabets because arabic fonts rarely renders properly onto terminals.
 
