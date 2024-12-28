@@ -1,0 +1,134 @@
+#!/usr/bin/env sh
+
+# Some variables
+
+keyword="$2"
+filename="main_hisnulmuslim.txt"
+pager="less"
+write_file="hisnulmuslim.txt"
+
+#[ -z "$keyword" ] && echo "empty keyword" && exit 1;
+
+if [ -f "$filename" ]; then
+	echo "file found"
+elif
+	[ -f "$HOME/.local/share/hisnulmuslim/main_hisnulmuslim.txt" ]; then
+	filename="$HOME/.local/share/hisnulmuslim/main_hisnulmuslim.txt"
+else
+	echo "Main file not found";
+	exit 1;
+fi
+
+#[ -z "$filename" ] && echo "empty filename" && exit 1;
+
+# Some functions
+usage() {
+	echo
+	echo "Usage"
+	echo "-l or --list         Index of dua's"
+	echo "-s or --search       Search for a keyword"
+	echo "-c or --chapter      Prints out an entire chapter"
+	echo "-cs or --chapsearch  Search for chapter containing keyword"
+	echo "-eg or --example     Prints out some example"
+	echo "-h or --help         Prints out this help message"
+	echo
+	exit
+}
+
+# Different examples
+example() {
+	echo
+	echo "Some examples"
+	echo "hisnulmuslim -s 'travel'     Will print all dua's related to travel"
+	echo "hisnulmuslim -c 'chapter 4'  Will print out entire chapter 4"
+	echo "hisnulmuslim -cs 'travel'    Prints out chapters containing the title travel"
+	echo
+}
+
+# Main search function
+main_search_function() {
+	awk -v word="$keyword" '/^Hisn\sal-Muslim\s/ { IGNORECASE=1; inblock = 1; block = "" } inblock { IGNORECASE=1; block = block (block == "" ? "" : ORS) $0 } /^Reference\s\s:\s/ && block ~ word { print block"\n"; inblock = 0 }' $filename | $pager
+}
+
+# chapter search function
+chapter_search_function() {
+	grep -i "$keyword" $filename | awk '/^Chapter\s/ { print $1" "$2 }' | tr -d ':' | grep -qi "chapter"
+	
+	if [ "$?" = 0 ]; then
+		a=1
+		val="$(grep -i "$keyword" $filename | awk '/^Chapter\s/ { print $1" "$2 }' | tr -d ':' | wc -l)"
+		while [ "$a" -le "$val" ]; do
+			chapter_name="$(grep -i "$keyword" $filename | awk '/^Chapter\s/ { print $1" "$2 }' | tr -d ':' | sed -n "${a}p")"
+			awk -v word="$chapter_name" '/^Chapter\s[[:digit:]]++:\s/ { IGNORECASE=1; inblock = 1; block = "" } inblock { IGNORECASE=1; block = block (block == "" ? "" : ORS) $0 } /^\*\*\*.*$/ && block ~ word { print block"\n"; inblock = 0 }' $filename >> $write_file
+			a="$(( $a + 1 ))"
+		done && $pager $write_file && rm $write_file
+	fi
+}
+
+# Chapter function
+only_chapter_function() {
+	main_keyword="$(echo "$keyword" | sed "s/$keyword/$keyword:/g")"
+	awk -v word="$main_keyword" '/^Chapter\s[[:digit:]]++:\s/ { IGNORECASE=1; inblock = 1; block = "" } inblock { IGNORECASE=1; block = block (block == "" ? "" : ORS) $0 } /^\*\*\*.*$/ && block ~ word { print block"\n"; inblock = 0 }' $filename | $pager
+}
+
+#functions end
+
+# Case statements
+#
+case "$1" in
+	""|" " ) # print usage message if first argument is empty
+		usage
+		;;
+	-s|--search ) # search parameter/argument
+		
+		# if search keyword is empty, exit with exit status 1
+		if [ -z "$keyword" ]; then
+			echo "empty search keyword"
+			return 1
+		else
+			main_search_function;
+		fi
+		;;
+	-c|--chapter ) # if search keyword is empty, exit with status 1
+		if [ -z "$keyword" ]; then
+			echo "empty chapter argument"
+			usage
+			return 1;
+		fi
+		# Check if it's in the correct format;
+		echo "$keyword" | grep -q "[[:alpha:]] [[:digit:]]"
+		if [ "$?" = 0 ]; then
+			only_chapter_function;
+		else
+			echo "Needs to be in correct format, see examples"
+			example
+		fi
+		;;
+	-cs|--chapsearch ) # if search keyword is empty
+		if [ -z "$keyword" ]; then
+			echo "Empty parameter, see examples"
+			example
+			return 1;
+		fi
+		echo "$keyword" | grep -qi chapter
+		if [ "$?" = 0 ]; then
+			echo "Chapter heading cannot be chapter number, try -c flag perhaps"
+			usage;
+			return 1;
+		else
+			chapter_search_function;
+		fi
+		;;
+	-h|--help ) # prints help message/usage
+		usage
+		;;
+	-eg|--example ) # shows examples
+		example
+		;;
+	-l|--list ) # shows list of suras from the index
+		sed -n '1,134p' $filename | $pager
+		;;
+	* ) echo "Invalid argument"
+		usage && return 1;
+		;;
+esac
