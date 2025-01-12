@@ -25,12 +25,14 @@ fi
 usage() {
 	echo
 	echo "Usage"
-	echo "-l or --list         Index of dua's"
-	echo "-s or --search       Search for a keyword"
-	echo "-c or --chapter      Prints out an entire chapter"
-	echo "-cs or --chapsearch  Search for chapter containing keyword"
-	echo "-eg or --example     Prints out some example"
-	echo "-h or --help         Prints out this help message"
+	echo "  -l or --list         Index of dua's"
+	echo "  -s or --search       Search for a keyword"
+	echo "  -c or --chapter      Prints out an entire chapter"
+	echo "  -n or --number       Prints out an entire chapter by chapter number,"
+	echo "                       to get chapter number, see the --list first"
+	echo "  -cs or --chapsearch  Search for chapter containing keyword"
+	echo "  -eg or --example     Prints out some example"
+	echo "  -h or --help         Prints out this help message"
 	echo
 	exit
 }
@@ -38,10 +40,12 @@ usage() {
 # Different examples
 example() {
 	echo
-	echo "Some examples"
-	echo "hisnulmuslim -s 'travel'     Will print all dua's related to travel"
-	echo "hisnulmuslim -c 'chapter 4'  Will print out entire chapter 4"
-	echo "hisnulmuslim -cs 'travel'    Prints out chapters containing the title travel"
+	echo "  Some examples"
+	echo
+	echo "  hisnulmuslim -s 'travel'     Will print all dua's related to travel"
+	echo "  hisnulmuslim -c 'chapter 4'  Will print out entire chapter 4"
+	echo "  hisnulmuslim -n '12'         Will print out chapter 12"
+	echo "  hisnulmuslim -cs 'travel'    Prints out chapters containing the title travel"
 	echo
 }
 
@@ -67,10 +71,23 @@ chapter_search_function() {
 
 # Chapter function
 only_chapter_function() {
-	main_keyword="$(echo "$keyword" | sed "s/$keyword/$keyword:/g")"
+	main_keyword="$(echo "$keyword:")"
 	awk -v word="$main_keyword" '/^Chapter\s[[:digit:]]++:\s/ { IGNORECASE=1; inblock = 1; block = "" } inblock { IGNORECASE=1; block = block (block == "" ? "" : ORS) $0 } /^\*\*\*.*$/ && block ~ word { print block"\n"; inblock = 0 }' $filename | $pager
 }
 
+# number section
+only_number_function() {
+	if [ "$keyword" -ge 0 ]; then
+		# conver the keyword with a chapter prefix
+		keyword_conversion="$(echo "chapter $keyword")"
+		# call only chapter function
+		numeric_keyword="$(echo "$keyword_conversion:")"
+		awk -v word="$numeric_keyword" '/^Chapter\s[[:digit:]]++:\s/ { IGNORECASE=1; inblock = 1; block = "" } inblock { IGNORECASE=1; block = block (block == "" ? "" : ORS) $0 } /^\*\*\*.*$/ && block ~ word { print block"\n"; inblock = 0 }' $filename | $pager
+	else
+		echo "format is incorrect" && \
+			example && exit 1;
+	fi
+}
 #functions end
 
 # Case statements
@@ -103,6 +120,12 @@ case "$1" in
 			echo "Needs to be in correct format, see examples"
 			example
 		fi
+		;;
+	-n|--number ) # check if the keyword is empty
+		[ -z "$keyword" ] && echo "empty keyword" && usage && \
+			exit 1;
+		# call number function
+		only_number_function;
 		;;
 	-cs|--chapsearch ) # if search keyword is empty
 		if [ -z "$keyword" ]; then

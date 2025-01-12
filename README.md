@@ -15,6 +15,9 @@ The usage is fairly simple; Running with -h flag prints out the usage;
     -l or --list         Index of dua's
     -s or --search       Search for a keyword
     -c or --chapter      Prints out an entire chapter
+    -n or --number       Prints out an entire chapter by chapter number,
+                         to get chapter number, see the --list first
+
     -cs or --chapsearch  Search for chapter containing keyword
     -eg or --example     Prints out some example
     -h or --help         Prints out this help message
@@ -33,6 +36,7 @@ For easier use; I've also included an example section;
     Some examples
     hisnulmuslim -s 'travel'     Will print all dua's related to travel
     hisnulmuslim -c 'chapter 4'  Will print out entire chapter 4
+    hisnulmuslim -n '12'         Will print out chapter 12
     hisnulmuslim -cs 'travel'    Prints out chapters containing the title travel
 ```
 
@@ -40,7 +44,7 @@ It's pretty straight-forward, you can easily figure out it's usage.
 
 ## Requirements
 
-* Linux/Gnu Environment
+* Linux/Gnu Environment, could potentially run on Unix Environments too.
 * Gnu version of awk and sed
 
 ## Installation
