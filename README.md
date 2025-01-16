@@ -4,6 +4,31 @@ Read the daily zikr and dua's in the terminal from the Hisn al-Muslim book(Fortr
 
 It contains only the transliteration(the preservation of pronunciation) and translation portion. I've omitted arabic alphabets because arabic fonts rarely renders properly onto terminals.
 
+
+## Basic Structure
+
+Here's a basic structure overview of the main_hisnulmuslim.txt file
+
+```
+    Chapter 1 title
+    	|
+    	|------ Dua no 1
+    	|------ Dua no 2
+    	|------ Dua no 3
+    
+    Chapter 2 title
+    	|
+    	|------ Dua no 1
+    	|------ Dua no 2
+    
+    Chapter 3 title
+    	|
+    	|------ Dua no 1
+    	|------ Dua no 2
+
+```
+
+
 ## Usage
 
 The usage is fairly simple; Running with -h flag prints out the usage;
